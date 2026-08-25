@@ -1,0 +1,107 @@
+{
+  "nodes": [
+    {"node_id": "N1", "latitude": 22.2580, "longitude": 85.8290, "node_type": "junction", "name": "North Entry"},
+    {"node_id": "N2", "latitude": 22.2570, "longitude": 85.8310, "node_type": "waypoint", "name": "Haul Road A Start"},
+    {"node_id": "N3", "latitude": 22.2555, "longitude": 85.8330, "node_type": "blind_corner", "name": "Blind Corner Alpha"},
+    {"node_id": "N4", "latitude": 22.2540, "longitude": 85.8345, "node_type": "junction", "name": "Central Junction"},
+    {"node_id": "N5", "latitude": 22.2525, "longitude": 85.8360, "node_type": "waypoint", "name": "Haul Road B Mid"},
+    {"node_id": "N6", "latitude": 22.2510, "longitude": 85.8375, "node_type": "blind_corner", "name": "Blind Corner Beta"},
+    {"node_id": "N7", "latitude": 22.2495, "longitude": 85.8390, "node_type": "junction", "name": "South Pit Entry"},
+    {"node_id": "N8", "latitude": 22.2560, "longitude": 85.8365, "node_type": "waypoint", "name": "East Haul Start"},
+    {"node_id": "N9", "latitude": 22.2545, "longitude": 85.8385, "node_type": "blind_corner", "name": "Blind Corner Gamma"},
+    {"node_id": "N10", "latitude": 22.2530, "longitude": 85.8400, "node_type": "junction", "name": "East Junction"},
+    {"node_id": "N11", "latitude": 22.2515, "longitude": 85.8415, "node_type": "waypoint", "name": "Crusher Approach"},
+    {"node_id": "N12", "latitude": 22.2500, "longitude": 85.8430, "node_type": "junction", "name": "Crusher Zone"}
+  ],
+  "segments": [
+    {
+      "segment_id": "SEG_N1_N2",
+      "start_node": "N1", "end_node": "N2",
+      "start_lat": 22.2580, "start_lon": 85.8290,
+      "end_lat": 22.2570, "end_lon": 85.8310,
+      "speed_limit": 30, "gradient": -2, "width": 12, "blind_corner": false, "is_active": true
+    },
+    {
+      "segment_id": "SEG_N2_N3",
+      "start_node": "N2", "end_node": "N3",
+      "start_lat": 22.2570, "start_lon": 85.8310,
+      "end_lat": 22.2555, "end_lon": 85.8330,
+      "speed_limit": 25, "gradient": -4, "width": 10, "blind_corner": true, "is_active": true
+    },
+    {
+      "segment_id": "SEG_N3_N4",
+      "start_node": "N3", "end_node": "N4",
+      "start_lat": 22.2555, "start_lon": 85.8330,
+      "end_lat": 22.2540, "end_lon": 85.8345,
+      "speed_limit": 25, "gradient": -3, "width": 10, "blind_corner": false, "is_active": true
+    },
+    {
+      "segment_id": "SEG_N4_N5",
+      "start_node": "N4", "end_node": "N5",
+      "start_lat": 22.2540, "start_lon": 85.8345,
+      "end_lat": 22.2525, "end_lon": 85.8360,
+      "speed_limit": 30, "gradient": -5, "width": 10, "blind_corner": false, "is_active": true
+    },
+    {
+      "segment_id": "SEG_N5_N6",
+      "start_node": "N5", "end_node": "N6",
+      "start_lat": 22.2525, "start_lon": 85.8360,
+      "end_lat": 22.2510, "end_lon": 85.8375,
+      "speed_limit": 20, "gradient": -6, "width": 8, "blind_corner": true, "is_active": true
+    },
+    {
+      "segment_id": "SEG_N6_N7",
+      "start_node": "N6", "end_node": "N7",
+      "start_lat": 22.2510, "start_lon": 85.8375,
+      "end_lat": 22.2495, "end_lon": 85.8390,
+      "speed_limit": 25, "gradient": -4, "width": 10, "blind_corner": false, "is_active": true
+    },
+    {
+      "segment_id": "SEG_N4_N8",
+      "start_node": "N4", "end_node": "N8",
+      "start_lat": 22.2540, "start_lon": 85.8345,
+      "end_lat": 22.2560, "end_lon": 85.8365,
+      "speed_limit": 30, "gradient": 1, "width": 12, "blind_corner": false, "is_active": true
+    },
+    {
+      "segment_id": "SEG_N8_N9",
+      "start_node": "N8", "end_node": "N9",
+      "start_lat": 22.2560, "start_lon": 85.8365,
+      "end_lat": 22.2545, "end_lon": 85.8385,
+      "speed_limit": 25, "gradient": 2, "width": 10, "blind_corner": true, "is_active": true
+    },
+    {
+      "segment_id": "SEG_N9_N10",
+      "start_node": "N9", "end_node": "N10",
+      "start_lat": 22.2545, "start_lon": 85.8385,
+      "end_lat": 22.2530, "end_lon": 85.8400,
+      "speed_limit": 30, "gradient": 1, "width": 10, "blind_corner": false, "is_active": true
+    },
+    {
+      "segment_id": "SEG_N10_N11",
+      "start_node": "N10", "end_node": "N11",
+      "start_lat": 22.2530, "start_lon": 85.8400,
+      "end_lat": 22.2515, "end_lon": 85.8415,
+      "speed_limit": 20, "gradient": -3, "width": 8, "blind_corner": false, "is_active": true
+    },
+    {
+      "segment_id": "SEG_N11_N12",
+      "start_node": "N11", "end_node": "N12",
+      "start_lat": 22.2515, "start_lon": 85.8415,
+      "end_lat": 22.2500, "end_lon": 85.8430,
+      "speed_limit": 15, "gradient": -2, "width": 8, "blind_corner": false, "is_active": true
+    },
+    {
+      "segment_id": "SEG_N7_N12",
+      "start_node": "N7", "end_node": "N12",
+      "start_lat": 22.2495, "start_lon": 85.8390,
+      "end_lat": 22.2500, "end_lon": 85.8430,
+      "speed_limit": 20, "gradient": 1, "width": 10, "blind_corner": false, "is_active": true
+    }
+  ],
+  "radar_beacons": [
+    {"beacon_id": "RADAR_ALPHA", "node_id": "N3", "latitude": 22.2555, "longitude": 85.8330, "status": "online"},
+    {"beacon_id": "RADAR_BETA", "node_id": "N6", "latitude": 22.2510, "longitude": 85.8375, "status": "online"},
+    {"beacon_id": "RADAR_GAMMA", "node_id": "N9", "latitude": 22.2545, "longitude": 85.8385, "status": "online"}
+  ]
+}
