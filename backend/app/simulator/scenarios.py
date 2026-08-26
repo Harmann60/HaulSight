@@ -141,6 +141,13 @@ async def reset_all():
         vehicle_simulator.resume_vehicle(vid)
         vehicle_simulator.set_gps_quality(vid, GpsQuality.GOOD)
 
+    # Remove any virtual radar-only vehicles that accumulated
+    from ..state import vehicle_store
+    all_vehicles = await vehicle_store.get_all()
+    for v in all_vehicles:
+        if v.vehicle_id.startswith("RADAR-"):
+            await vehicle_store.remove(v.vehicle_id)
+
     await broadcast({
         "type": "gateway_status",
         "data": {"gateway_status": "online", "message": "All systems normal"},

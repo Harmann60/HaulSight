@@ -45,11 +45,9 @@ class RadarSimulator:
                     direction = random.uniform(0, 360)
                     confidence = random.uniform(0.6, 0.95)
 
-                    # Only detect known vehicles during normal operation
-                    detected_vehicle = None
-                    if random.random() < 0.6:
-                        known_vehicles = ["VH1027", "VH1031", "VH1045", "VH1052"]
-                        detected_vehicle = random.choice(known_vehicles)
+                    # Always detect known vehicles during normal operation
+                    known_vehicles = ["VH1027", "VH1031", "VH1045", "VH1052"]
+                    detected_vehicle = random.choice(known_vehicles)
 
                     detection = RadarDetection(
                         detection_id=str(uuid.uuid4())[:8],
