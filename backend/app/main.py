@@ -68,6 +68,13 @@ async def _risk_loop():
                 "data": get_active_alerts(),
             })
 
+            # Determine gateway status — respect active scenario
+            active_scenario = vehicle_simulator.get_scenario()
+            if active_scenario == "scenario_2":
+                gw_status = "degraded"
+            else:
+                gw_status = "online"
+
             # Broadcast system health
             beacon_count = len(radar_service.get_all_beacons())
             online_beacons = sum(1 for b in radar_service.get_all_beacons() if b["status"] == "online")
@@ -78,7 +85,7 @@ async def _risk_loop():
                     "vehicles_tracked": len(vehicles_data),
                     "active_alerts": len(get_active_alerts()),
                     "radar_beacons_online": f"{online_beacons}/{beacon_count}",
-                    "gateway_status": "online",
+                    "gateway_status": gw_status,
                     "uptime_seconds": round(time.time() - _START_TIME),
                 },
             })
@@ -181,12 +188,17 @@ def create_app() -> FastAPI:
         a_count = len(get_active_alerts())
         beacon_count = len(radar_service.get_all_beacons())
         online_beacons = sum(1 for b in radar_service.get_all_beacons() if b["status"] == "online")
+
+        # Respect active scenario for gateway status
+        active_scenario = vehicle_simulator.get_scenario()
+        gw_status = "degraded" if active_scenario == "scenario_2" else "online"
+
         return {
             "status": "ok",
             "vehicles_tracked": v_count,
             "active_alerts": a_count,
             "radar_beacons_online": f"{online_beacons}/{beacon_count}",
-            "gateway_status": "online",
+            "gateway_status": gw_status,
             "uptime_seconds": round(time.time() - _START_TIME),
         }
 

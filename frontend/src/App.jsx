@@ -30,16 +30,20 @@ export default function App() {
           addAlert(msg.data);
           break;
         case 'alert_update':
-          updateAlert(msg.data);
+          if (Array.isArray(msg.data)) {
+            setActiveAlerts(msg.data);
+          } else {
+            updateAlert(msg.data);
+          }
           break;
         case 'alert_resolved':
           removeAlert(msg.data.alert_id);
           break;
-        case 'alert_update':
-          setActiveAlerts(msg.data);
-          break;
         case 'system_health':
           setHealth(msg.data);
+          break;
+        case 'gateway_status':
+          setHealth({ ...useSystemStore.getState().health, gateway_status: msg.data.gateway_status });
           break;
         case 'radar_warning':
           console.log('[Radar Warning]', msg.data);
@@ -56,7 +60,6 @@ export default function App() {
       }
     });
 
-    // Initial fetches
     fetchBeacons().then(setRadarBeacons).catch(console.error);
 
     return () => {

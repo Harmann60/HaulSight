@@ -53,6 +53,7 @@ class VehicleSimulator:
         self._running = False
         self._vehicle_progress: dict[str, dict] = {}
         self._sequence_counters: dict[str, int] = {}
+        self._active_scenario: str | None = None
 
     def _init_vehicle(self, vid: str, route_cfg: dict) -> None:
         nodes = route_cfg["nodes"]
@@ -136,14 +137,26 @@ class VehicleSimulator:
 
         while self._running:
             for vid, cfg in VEHICLE_ROUTES.items():
-                if self._vehicle_progress.get(vid, {}).get("paused"):
+                prog = self._vehicle_progress.get(vid, {})
+                is_paused = prog.get("paused", False)
+                is_suppressed = prog.get("suppress", False)
+
+                # Suppressed = no telemetry at all (network failure simulation)
+                if is_suppressed:
                     continue
 
                 lat, lon, speed, heading = self._get_position(vid)
 
+                # If paused during scenario, keep speed but don't advance
+                # If paused normally (e.g. network failure), report stopped
+                if is_paused and vehicle_simulator.get_scenario():
+                    pass  # keep speed as-is for risk calculation
+                elif is_paused:
+                    speed = 0.0
+
                 # Vary GPS quality occasionally
-                gps_quality = GpsQuality.GOOD
-                if random.random() < 0.02:
+                gps_quality = self._vehicle_progress.get(vid, {}).get("gps_quality", GpsQuality.GOOD)
+                if not is_paused and random.random() < 0.02:
                     gps_quality = GpsQuality.POOR
 
                 self._sequence_counters[vid] = self._sequence_counters.get(vid, 0) + 1
@@ -165,7 +178,9 @@ class VehicleSimulator:
                 except Exception as e:
                     print(f"[simulator] Error ingesting {vid}: {e}")
 
-                self._advance(vid)
+                # Only advance if not paused
+                if not is_paused:
+                    self._advance(vid)
 
             await asyncio.sleep(tick)
 
@@ -176,13 +191,57 @@ class VehicleSimulator:
         if vid in self._vehicle_progress:
             self._vehicle_progress[vid]["paused"] = True
 
+    def suppress_vehicle(self, vid: str) -> None:
+        """Completely stop telemetry for a vehicle (simulates network loss)."""
+        if vid in self._vehicle_progress:
+            self._vehicle_progress[vid]["paused"] = True
+            self._vehicle_progress[vid]["suppress"] = True
+
     def resume_vehicle(self, vid: str) -> None:
         if vid in self._vehicle_progress:
             self._vehicle_progress[vid]["paused"] = False
+            self._vehicle_progress[vid]["suppress"] = False
 
     def set_gps_quality(self, vid: str, quality: GpsQuality) -> None:
         if vid in self._vehicle_progress:
             self._vehicle_progress[vid]["gps_quality"] = quality
+
+    def reposition_vehicle(self, vid: str, segment_index: int, t: float = 0.1) -> None:
+        """Teleport a vehicle to a specific position along its route."""
+        if vid in self._vehicle_progress:
+            prog = self._vehicle_progress[vid]
+            prog["segment_index"] = segment_index
+            prog["t"] = t
+            prog["paused"] = False
+
+    def reposition_on_segment(self, vid: str, segment_id: str, t: float = 0.5) -> None:
+        """Teleport a vehicle to a specific road segment (by ID) at position t [0,1].
+        Finds the segment in the vehicle's route and positions it there."""
+        if vid not in self._vehicle_progress:
+            return
+        prog = self._vehicle_progress[vid]
+        route = prog["route"]
+        for i in range(len(route) - 1):
+            seg_candidate = f"SEG_{route[i]}_{route[i+1]}"
+            if seg_candidate == segment_id:
+                prog["segment_index"] = i
+                prog["t"] = t
+                prog["paused"] = False
+                return
+        # Also check reverse direction
+        for i in range(len(route) - 1):
+            seg_candidate = f"SEG_{route[i+1]}_{route[i]}"
+            if seg_candidate == segment_id:
+                prog["segment_index"] = i
+                prog["t"] = 1.0 - t  # flip t for reverse direction
+                prog["paused"] = False
+                return
+
+    def set_scenario(self, scenario_name: str | None) -> None:
+        self._active_scenario = scenario_name
+
+    def get_scenario(self) -> str | None:
+        return self._active_scenario
 
 
 vehicle_simulator = VehicleSimulator()

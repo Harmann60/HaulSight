@@ -45,6 +45,7 @@ class VehicleType(str, Enum):
     WATER_TANKER = "water_tanker"
     BUS = "bus"
     LIGHT_VEHICLE = "light_vehicle"
+    UNKNOWN = "unknown"
 
 
 # ── Telemetry Ingestion ───────────────────────────────────

@@ -23,7 +23,15 @@ class RadarSimulator:
         self._running = True
         print("[radar_sim] Started")
 
+        # Import here to avoid circular import
+        from .vehicle_sim import vehicle_simulator
+
         while self._running:
+            # Skip random detections during active scenarios
+            if vehicle_simulator.get_scenario():
+                await asyncio.sleep(self._detection_interval)
+                continue
+
             # Simulate occasional detections at blind corners
             beacons = radar_service.get_all_beacons()
 
@@ -37,7 +45,7 @@ class RadarSimulator:
                     direction = random.uniform(0, 360)
                     confidence = random.uniform(0.6, 0.95)
 
-                    # Sometimes simulate a known vehicle, sometimes unknown
+                    # Only detect known vehicles during normal operation
                     detected_vehicle = None
                     if random.random() < 0.6:
                         known_vehicles = ["VH1027", "VH1031", "VH1045", "VH1052"]
