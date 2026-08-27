@@ -31,11 +31,11 @@ In open-cast iron ore mines, dense fog severely limits visibility on haul roads.
 │                     HaulSight Architecture                       │
 ├──────────────────────────────────────────────────────────────────┤
 │                                                                  │
-│  ┌─────────────┐    ┌──────────────┐    ┌─────────────────────┐ │
+│  ┌─────────────┐    ┌──────────────┐    ┌─────────────────────┐  │
 │  │   Vehicle    │───▶│   Roadside   │───▶│   Control Room      │ │
 │  │   Unit       │LoRa│   Gateway    │API │   Backend           │ │
 │  │  (GPS+IMU)   │    │  (ESP32)     │    │  (FastAPI+SQLite)   │ │
-│  └─────────────┘    └──────────────┘    └─────────┬───────────┘ │
+│  └─────────────┘    └──────────────┘    └───────── ┬───────────┘ │
 │                                                    │             │
 │                                      ┌─────────────┼───────────┐ │
 │                                      │  WebSocket  │ REST API  │ │
@@ -43,13 +43,13 @@ In open-cast iron ore mines, dense fog severely limits visibility on haul roads.
 │                              ┌─────────────────────────────┐   │ │
 │                              │      Control Room           │   │ │
 │                              │      Dashboard              │   │ │
-│                              │  (React + Leaflet + Tailwind)│   │ │
+│                              │  (React + Leaflet + Tailwind│   │ │
 │                              └─────────────────────────────┘   │ │
-│                                                                 │
-│  ┌──────────────────────────────────────────────────────────┐  │
-│  │          Independent Radar Fallback (LoRa-free)          │  │
-│  │    Blind Corner Beacons → Local Visual + Audible Alert   │  │
-│  └──────────────────────────────────────────────────────────┘  │
+│                                                                  │
+│  ┌──────────────────────────────────────────────────────────┐    │
+│  │          Independent Radar Fallback (LoRa-free)          │    │
+│  │    Blind Corner Beacons → Local Visual + Audible Alert   │    │
+│  └──────────────────────────────────────────────────────────┘    │
 └──────────────────────────────────────────────────────────────────┘
 ```
 
