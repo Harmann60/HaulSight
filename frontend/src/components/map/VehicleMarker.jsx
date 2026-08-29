@@ -14,31 +14,16 @@ export default function VehicleMarker({ vehicle }) {
   const size = SIZE_MAP[vehicle.risk_level] || 11;
 
   return (
-    <>
-      {vehicle.risk_level === 'CRITICAL' && (
-        <CircleMarker
-          center={[vehicle.latitude, vehicle.longitude]}
-          radius={size + 6}
-          pathOptions={{
-            color: riskColor,
-            fillColor: riskColor,
-            fillOpacity: 0.15,
-            weight: 1,
-            dashArray: '3, 3',
-          }}
-        />
-      )}
-      <CircleMarker
-        center={[vehicle.latitude, vehicle.longitude]}
-        radius={size}
-        pathOptions={{
-          color: '#fff',
-          fillColor: riskColor,
-          fillOpacity: 0.95,
-          weight: 2,
-        }}
-        className={vehicle.risk_level === 'CRITICAL' ? 'animate-pulse-critical' : 'vehicle-marker-cicle'}
-      />
+    <CircleMarker
+      center={[vehicle.latitude, vehicle.longitude]}
+      radius={size}
+      pathOptions={{
+        color: '#fff',
+        fillColor: riskColor,
+        fillOpacity: 0.95,
+        weight: vehicle.risk_level === 'CRITICAL' ? 3 : 2,
+      }}
+    >
       <Popup>
         <div className="text-sm min-w-[180px] font-sans">
           <div className="font-bold text-base mb-0.5">{vehicle.vehicle_id}</div>
@@ -72,6 +57,6 @@ export default function VehicleMarker({ vehicle }) {
           )}
         </div>
       </Popup>
-    </>
+    </CircleMarker>
   );
 }
