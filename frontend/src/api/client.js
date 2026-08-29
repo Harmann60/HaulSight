@@ -1,4 +1,4 @@
-const API_BASE = '';
+const API_BASE = 'https://haulsight.onrender.com';
 
 export async function fetchVehicles() {
   const res = await fetch(`${API_BASE}/api/v1/vehicles`);
