@@ -1,3 +1,4 @@
+import { Truck } from 'lucide-react';
 import { useVehicleStore } from '../../stores/vehicleStore';
 import VehicleCard from './VehicleCard';
 
@@ -9,27 +10,27 @@ export default function VehicleList() {
     return (riskOrder[a.risk_level] ?? 4) - (riskOrder[b.risk_level] ?? 4);
   });
 
+  const live = vehicles.filter((v) => v.state === 'LIVE').length;
+  const stale = vehicles.filter((v) => v.state === 'STALE').length;
+  const offline = vehicles.filter((v) => v.state === 'OFFLINE').length;
+
   return (
-    <div className="bg-white rounded-xl shadow-md border border-cream-dark overflow-hidden">
-      <div className="px-4 py-3 bg-brown/5 border-b border-cream-dark flex items-center justify-between">
-        <h2 className="font-bold text-brown text-sm uppercase tracking-wider">
-          Vehicles ({vehicles.length})
-        </h2>
-        <div className="flex gap-2 text-xs">
-          <span className="flex items-center gap-1">
-            <span className="w-2 h-2 rounded-full bg-green-500" /> LIVE
-          </span>
-          <span className="flex items-center gap-1">
-            <span className="w-2 h-2 rounded-full bg-yellow-500" /> STALE
-          </span>
-          <span className="flex items-center gap-1">
-            <span className="w-2 h-2 rounded-full bg-gray-400" /> OFF
-          </span>
+    <div className="panel overflow-hidden">
+      <div className="panel-header">
+        <div className="flex items-center gap-2">
+          <Truck size={15} className="text-brown/50" strokeWidth={1.75} />
+          <h2 className="panel-title">Vehicles</h2>
+          <span className="text-[13px] font-bold text-brown leading-none">{vehicles.length}</span>
+        </div>
+        <div className="flex items-center gap-3 text-[10px] font-semibold">
+          <span className="status"><span className="dot dot--live" />Live {live}</span>
+          <span className="status"><span className="dot dot--stale" />Stale {stale}</span>
+          <span className="status"><span className="dot dot--offline" />Offline {offline}</span>
         </div>
       </div>
-      <div className="max-h-[280px] overflow-y-auto">
+      <div className="max-h-[300px] overflow-y-auto">
         {sorted.length === 0 ? (
-          <div className="p-4 text-center text-brown/40 text-sm">No vehicles tracked</div>
+          <div className="panel-body text-center text-[12px] text-brown/40">No vehicles tracked</div>
         ) : (
           sorted.map((v) => <VehicleCard key={v.vehicle_id} vehicle={v} />)
         )}

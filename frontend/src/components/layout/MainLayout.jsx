@@ -7,16 +7,18 @@ import { RadarAIPanel, ProductionPanel } from '../ai/AIPanels';
 export default function MainLayout() {
   return (
     <div className="flex-1 flex overflow-hidden">
-      {/* Map takes 60% */}
-      <div className="w-[60%] p-3 flex flex-col gap-3 min-w-0">
-        <div className="flex-1 rounded-xl overflow-hidden shadow-md border border-cream-dark">
-          <MineMap />
+      {/* Map (primary hero, 58%) */}
+      <div className="w-[58%] p-3 flex flex-col gap-3 min-w-0">
+        <div className="flex-1 panel overflow-hidden">
+          <div className="h-full">
+            <MineMap />
+          </div>
         </div>
         <SystemHealth />
       </div>
 
-      {/* Side panels take 40% */}
-      <div className="w-[40%] p-3 pl-0 flex flex-col gap-3 min-w-0 overflow-y-auto">
+      {/* Right rail (secondary/tertiary, 42%) */}
+      <div className="w-[42%] p-3 pl-0 flex flex-col gap-3 min-w-0 overflow-y-auto">
         <VehicleList />
         <AlertPanel />
         <RadarAIPanel />

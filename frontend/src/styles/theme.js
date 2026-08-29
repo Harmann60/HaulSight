@@ -17,20 +17,9 @@ export const RISK_COLORS = {
 };
 
 export const STATE_COLORS = {
-  LIVE: '#16A34A',
+  LIVE: '#2F9E63',
   STALE: '#CA8A04',
   DEGRADED: '#E76F2E',
   OFFLINE: '#9CA3AF',
   UNKNOWN: '#6B7280',
-};
-
-export const VEHICLE_TYPE_ICONS = {
-  dumper: '⛏',
-  grader: '🏗',
-  excavator: '🔧',
-  drill: '🔩',
-  water_tanker: '💧',
-  bus: '🚌',
-  light_vehicle: '🚗',
-  unknown: '❓',
 };

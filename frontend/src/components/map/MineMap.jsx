@@ -58,12 +58,11 @@ export default function MineMap() {
           }}
         >
           <Popup>
-            <div className="text-sm">
+            <div className="text-sm font-sans">
               <strong>{seg.segment_id}</strong><br />
-              Speed: {seg.speed_limit} km/h<br />
-              Width: {seg.width}m<br />
-              Gradient: {seg.gradient}%<br />
-              {seg.blind_corner && <span className="text-orange font-bold">⚠ Blind Corner</span>}
+              Speed limit: {seg.speed_limit} km/h<br />
+              Width: {seg.width}m · Gradient: {seg.gradient}%<br />
+              {seg.blind_corner && <span className="text-orange font-semibold">Blind corner</span>}
             </div>
           </Popup>
         </Polyline>

@@ -36,8 +36,8 @@ export default function HotspotLayer({ segments }) {
         }}
       >
         <Tooltip opacity={0.95}>
-          <div className="text-sm min-w-[150px]">
-            <div className="font-bold">⚠ {zone.level} RISK ZONE</div>
+          <div className="text-sm min-w-[150px] font-sans">
+            <div className="font-bold text-critical">{zone.level} RISK ZONE</div>
             <div className="text-xs text-gray-600">{zone.segment_id}</div>
             <div className="mt-1 text-xs">Alerts: <b>{zone.alerts}</b></div>
             <div className="text-xs">Critical: <b>{zone.critical}</b></div>

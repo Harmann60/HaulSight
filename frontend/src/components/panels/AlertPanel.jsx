@@ -1,3 +1,4 @@
+import { Bell, ShieldCheck } from 'lucide-react';
 import { useAlertStore } from '../../stores/alertStore';
 import AlertCard from './AlertCard';
 
@@ -10,18 +11,26 @@ export default function AlertPanel() {
   });
 
   return (
-    <div className="bg-white rounded-xl shadow-md border border-cream-dark overflow-hidden">
-      <div className="px-4 py-3 bg-brown/5 border-b border-cream-dark">
-        <h2 className="font-bold text-brown text-sm uppercase tracking-wider">
-          Active Alerts ({activeAlerts.length})
-        </h2>
+    <div className="panel overflow-hidden">
+      <div className="panel-header">
+        <div className="flex items-center gap-2">
+          <Bell size={15} className="text-brown/50" strokeWidth={1.75} />
+          <h2 className="panel-title">Active Alerts</h2>
+          {activeAlerts.length > 0 && (
+            <span className="text-[12px] font-bold text-warning leading-none">{activeAlerts.length}</span>
+          )}
+        </div>
       </div>
       <div className="max-h-[320px] overflow-y-auto">
         {sorted.length === 0 ? (
-          <div className="p-6 text-center">
-            <div className="text-2xl mb-1">✅</div>
-            <div className="text-sm text-brown/40">No active alerts</div>
-            <div className="text-xs text-brown/30 mt-1">All vehicles operating safely</div>
+          <div className="panel-body flex items-start gap-3 py-6">
+            <span className="w-9 h-9 shrink-0 flex items-center justify-center rounded-md bg-healthy/10 text-healthy">
+              <ShieldCheck size={18} strokeWidth={1.75} />
+            </span>
+            <div>
+              <div className="text-[13px] font-semibold text-brown">No active alerts</div>
+              <div className="text-[12px] text-brown/50 mt-0.5">All tracked vehicles operating safely</div>
+            </div>
           </div>
         ) : (
           sorted.map((alert) => <AlertCard key={alert.alert_id} alert={alert} />)

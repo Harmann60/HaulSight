@@ -1,47 +1,62 @@
+import { Radio, TrendingUp } from 'lucide-react';
 import { useAIStore } from '../../stores/aiStore';
 
-const CLASS_COLOR = {
-  VEHICLE: 'text-safe bg-blue-50 border-blue-200',
-  ANIMAL: 'text-warning bg-orange-50 border-orange-200',
-  ROCK: 'text-brown bg-cream border-cream-dark',
-  UNKNOWN: 'text-brown/50 bg-cream border-cream-dark',
+const CLASS_DOT = {
+  VEHICLE: 'bg-safe',
+  ANIMAL: 'bg-warning',
+  ROCK: 'bg-orange',
+  UNKNOWN: 'bg-brown/40',
 };
 
 export function RadarAIPanel() {
   const classifications = useAIStore((s) => s.radarClassifications);
+  const latest = classifications[0];
+
+  const details = [
+    { label: 'Range', value: latest?.features?.range_m != null ? `${latest.features.range_m.toFixed(0)} m` : '—' },
+    { label: 'Relative speed', value: latest?.features?.relative_speed_mps != null ? `${latest.features.relative_speed_mps.toFixed(1)} m/s` : '—' },
+    { label: 'Size', value: latest?.features?.size != null ? `${latest.features.size.toFixed(1)} m` : '—' },
+  ];
 
   return (
-    <div className="bg-white rounded-xl shadow-md border border-cream-dark overflow-hidden">
-      <div className="px-4 py-3 bg-brown/5 border-b border-cream-dark flex items-center justify-between">
-        <h2 className="font-bold text-brown text-sm uppercase tracking-wider">Radar AI Classification</h2>
-        <span className="text-[10px] text-brown/40 uppercase">simulation</span>
+    <div className="panel overflow-hidden">
+      <div className="panel-header">
+        <div className="flex items-center gap-2">
+          <Radio size={15} className="text-brown/50" strokeWidth={1.75} />
+          <h2 className="panel-title">Radar Classification</h2>
+        </div>
+        <span className="text-[10px] uppercase tracking-wide text-brown/35">Model · Classifier v1</span>
       </div>
-      <div className="max-h-[200px] overflow-y-auto">
-        {classifications.length === 0 ? (
-          <div className="p-4 text-center text-xs text-brown/40">
-            Waiting for radar detections…
-          </div>
+
+      <div className="panel-body">
+        {!latest ? (
+          <div className="text-[12px] text-brown/40">Waiting for radar detections…</div>
         ) : (
-          classifications.map((c, i) => {
-            const cls = CLASS_COLOR[c.object_class] || CLASS_COLOR.UNKNOWN;
-            return (
-              <div key={c.detection_id || i} className="px-4 py-2.5 border-b border-cream-dark/50">
-                <div className="flex items-center justify-between">
-                  <span className={`text-xs font-bold px-2 py-0.5 rounded border ${cls}`}>
-                    {c.object_class}
-                  </span>
-                  <span className="text-xs font-semibold text-brown">{c.confidence}%</span>
+          <>
+            <div className="flex items-center gap-2.5">
+              <span className={`w-2.5 h-2.5 rounded-full ${CLASS_DOT[latest.object_class] || 'bg-brown/40'}`} />
+              <span className="text-lg font-bold text-brown">{latest.object_class}</span>
+              <span className="text-[12px] text-brown/45">{latest.confidence}% confidence</span>
+            </div>
+
+            <div className="mt-3 grid grid-cols-3 gap-2 border-t border-cream-dark/60 pt-3">
+              {details.map((d) => (
+                <div key={d.label} className="leading-tight">
+                  <div className="text-[10px] text-brown/40 uppercase tracking-wide">{d.label}</div>
+                  <div className="text-[13px] font-semibold text-brown">{d.value}</div>
                 </div>
-                <div className="mt-1 text-[10px] text-brown/50">
-                  range {c.features?.range_m?.toFixed(0)}m • rel speed {c.features?.relative_speed_mps?.toFixed(1)} m/s {
-                    c.is_false_positive ? '• ✅ no alert (non-vehicle)' : ''
-                  }
-                </div>
+              ))}
+            </div>
+
+            {latest.is_false_positive && (
+              <div className="mt-2 text-[11px] text-brown/55">
+                Non-vehicle detection — no collision alert raised.
               </div>
-            );
-          })
+            )}
+          </>
         )}
       </div>
+      <div className="px-4 pb-3 text-[10px] text-brown/35">Simulation data · {latest?.data_mode || 'SIMULATION'}</div>
     </div>
   );
 }
@@ -50,37 +65,48 @@ export function ProductionPanel() {
   const production = useAIStore((s) => s.production);
   const increase = production.increase_pct || 0;
   const impact = production.production_impact_pct || 0;
+  const ready = production.normal_cycle_min > 0;
 
   return (
-    <div className="bg-white rounded-xl shadow-md border border-cream-dark overflow-hidden">
-      <div className="px-4 py-3 bg-brown/5 border-b border-cream-dark flex items-center justify-between">
-        <h2 className="font-bold text-brown text-sm uppercase tracking-wider">Production Forecast</h2>
-        <span className="text-[10px] text-brown/40 uppercase">estimate</span>
+    <div className="panel overflow-hidden">
+      <div className="panel-header">
+        <div className="flex items-center gap-2">
+          <TrendingUp size={15} className="text-brown/50" strokeWidth={1.75} />
+          <h2 className="panel-title">Production Forecast</h2>
+        </div>
       </div>
-      <div className="px-4 py-3">
-        <div className="grid grid-cols-3 gap-2 text-center">
-          <div>
-            <div className="text-[10px] text-brown/40 uppercase">Normal</div>
-            <div className="font-bold text-brown">{Math.round(production.normal_cycle_min)}<span className="text-xs"> min</span></div>
-          </div>
-          <div>
-            <div className="text-[10px] text-brown/40 uppercase">Predicted</div>
-            <div className={`font-bold ${increase > 5 ? 'text-warning' : 'text-brown'}`}>
-              {Math.round(production.predicted_cycle_min)}<span className="text-xs"> min</span>
+
+      <div className="panel-body">
+        {!ready ? (
+          <div className="text-[12px] text-brown/40">Forecast pending…</div>
+        ) : (
+          <>
+            <div className="grid grid-cols-3 gap-2">
+              <div className="leading-tight">
+                <div className="text-[10px] text-brown/40 uppercase tracking-wide">Normal cycle</div>
+                <div className="text-lg font-bold text-brown">
+                  {Math.round(production.normal_cycle_min)}<span className="text-[11px] font-medium text-brown/50"> min</span>
+                </div>
+              </div>
+              <div className="leading-tight">
+                <div className="text-[10px] text-brown/40 uppercase tracking-wide">Predicted</div>
+                <div className={`text-lg font-bold ${increase > 5 ? 'text-warning' : 'text-brown'}`}>
+                  {Math.round(production.predicted_cycle_min)}<span className="text-[11px] font-medium text-brown/50"> min</span>
+                </div>
+              </div>
+              <div className="leading-tight">
+                <div className="text-[10px] text-brown/40 uppercase tracking-wide">Impact</div>
+                <div className={`text-lg font-bold ${impact < 0 ? 'text-warning' : 'text-safe'}`}>{impact}%</div>
+              </div>
             </div>
-          </div>
-          <div>
-            <div className="text-[10px] text-brown/40 uppercase">Impact</div>
-            <div className={`font-bold ${impact < 0 ? 'text-critical' : 'text-safe'}`}>{impact}%</div>
-          </div>
-        </div>
-        <div className="mt-2 flex items-center justify-between text-[10px] text-brown/40">
-          <span>+{increase}% cycle time</span>
-          <span>AI {production.confidence}% conf</span>
-        </div>
-        <div className="mt-1.5 text-[9px] text-brown/30 italic">
-          Simulation estimate only, not actual mine production.
-        </div>
+
+            <div className="mt-3 flex items-center justify-between border-t border-cream-dark/60 pt-2">
+              <span className="text-[11px] text-brown/55">Haul-cycle {increase > 0 ? '+' : ''}{increase}%</span>
+              <span className="text-[11px] text-brown/55">est. {production.confidence || 0}% confidence</span>
+            </div>
+            <div className="mt-1 text-[10px] text-brown/35">Simulation estimate · not actual mine production</div>
+          </>
+        )}
       </div>
     </div>
   );

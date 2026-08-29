@@ -13,53 +13,119 @@
   --color-caution: #E76F2E;
   --color-warning: #E05D26;
   --color-critical: #DC2626;
+  --color-healthy: #2F9E63;
 }
 
 body {
   margin: 0;
   padding: 0;
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-size: 14px;
   background-color: var(--color-cream);
+  color: var(--color-brown);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ---- Reusable panel primitives (industrial control-room style) ---- */
+.panel {
+  background: #ffffff;
+  border: 1px solid var(--color-cream-dark);
+  border-radius: 8px;
+  box-shadow: 0 1px 2px rgba(62, 44, 35, 0.06);
+}
+
+.panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--color-cream-dark);
+  background: #faf6ef;
+}
+
+.panel-title {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
   color: var(--color-brown);
 }
 
+.panel-body {
+  padding: 12px 14px;
+}
+
+/* Small muted metadata label */
+.meta-label {
+  font-size: 11px;
+  color: rgba(62, 44, 35, 0.5);
+}
+
+/* Compact status dot with label */
+.status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--color-brown);
+}
+.status .dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex: 0 0 auto;
+}
+.status .dot--healthy { background: var(--color-healthy); }
+.status .dot--degraded { background: var(--color-orange); }
+.status .dot--critical { background: var(--color-critical); }
+.status .dot--offline { background: #9CA3AF; }
+.status .dot--live { background: var(--color-healthy); }
+.status .dot--stale { background: #CA8A04; }
+
+/* Scrollbar consistent with industrial style */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-cream-dark) transparent;
+}
+*::-webkit-scrollbar { width: 8px; height: 8px; }
+*::-webkit-scrollbar-thumb { background: var(--color-cream-dark); border-radius: 4px; }
+*::-webkit-scrollbar-track { background: transparent; }
+
+/* ---- Leaflet base overrides ---- */
 .leaflet-container {
   width: 100%;
   height: 100%;
   border-radius: 8px;
+  background: #efe6d6;
+  font-family: 'Inter', sans-serif;
+}
+.leaflet-control-zoom a {
+  border-radius: 4px !important;
 }
 
 @keyframes pulse-critical {
   0%, 100% { opacity: 1; }
-  50% { opacity: 0.5; }
+  50% { opacity: 0.55; }
 }
-
 .animate-pulse-critical {
-  animation: pulse-critical 1s ease-in-out infinite;
+  animation: pulse-critical 1.1s ease-in-out infinite;
 }
 
-.vehicle-marker {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 10px;
-  font-weight: 700;
-  color: white;
-  border-radius: 50%;
-  border: 2px solid white;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.3);
-  transition: all 0.3s ease;
+/* Radar beacon online pulse ring */
+.radar-pulse {
+  transform-origin: center;
+  animation: radar-pulse 2.4s ease-out infinite;
+}
+@keyframes radar-pulse {
+  0% { opacity: 0.6; }
+  70% { opacity: 0; }
+  100% { opacity: 0; }
 }
 
-.radar-beacon-marker {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 24px;
-  height: 24px;
-  background: var(--color-primary);
-  border: 2px solid white;
-  border-radius: 4px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.3);
-  font-size: 12px;
+/* Vehicle marker base */
+.vehicle-marker-cicle {
+  transition: all 0.35s ease;
 }
