@@ -3,7 +3,8 @@ import { connectWebSocket, onMessage, disconnectWebSocket } from './api/websocke
 import { useVehicleStore } from './stores/vehicleStore';
 import { useAlertStore } from './stores/alertStore';
 import { useSystemStore } from './stores/systemStore';
-import { fetchRoadGraph, fetchBeacons } from './api/client';
+import { useAIStore } from './stores/aiStore';
+import { fetchRoadGraph, fetchBeacons, fetchVisibility, fetchAIHotspots, fetchProduction, fetchRadarAI } from './api/client';
 import Header from './components/layout/Header';
 import MainLayout from './components/layout/MainLayout';
 
@@ -17,6 +18,11 @@ export default function App() {
   const setHealth = useSystemStore((s) => s.setHealth);
   const setRadarBeacons = useSystemStore((s) => s.setRadarBeacons);
   const setScenario = useSystemStore((s) => s.setScenario);
+  const setVisibility = useAIStore((s) => s.setVisibility);
+  const setHotspots = useAIStore((s) => s.setHotspots);
+  const setProduction = useAIStore((s) => s.setProduction);
+  const addRadarClassification = useAIStore((s) => s.addRadarClassification);
+  const setRadarClassifications = useAIStore((s) => s.setRadarClassifications);
 
   useEffect(() => {
     connectWebSocket();
@@ -51,6 +57,18 @@ export default function App() {
         case 'scenario':
           setScenario(msg.data);
           break;
+        case 'visibility':
+          setVisibility(msg.data);
+          break;
+        case 'hotspots':
+          setHotspots(msg.data);
+          break;
+        case 'production_forecast':
+          setProduction(msg.data);
+          break;
+        case 'radar_ai':
+          addRadarClassification(msg.data);
+          break;
         case 'ws_connected':
           setWsConnected(true);
           break;
@@ -61,6 +79,10 @@ export default function App() {
     });
 
     fetchBeacons().then(setRadarBeacons).catch(console.error);
+    fetchVisibility().then(setVisibility).catch(console.error);
+    fetchAIHotspots().then(setHotspots).catch(console.error);
+    fetchProduction().then(setProduction).catch(console.error);
+    fetchRadarAI().then(setRadarClassifications).catch(console.error);
 
     return () => {
       unsub();

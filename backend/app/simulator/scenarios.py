@@ -131,11 +131,197 @@ async def scenario_3_non_equipped_vehicle():
     })
 
 
+async def scenario_ai_visibility():
+    """AI Scenario: Normal visibility — visibility AI shows GOOD conditions."""
+    from ..services import visibility_ai
+    print("[scenario] Running AI Scenario: Normal visibility")
+    vehicle_simulator.set_scenario("scenario_ai_visibility")
+    visibility_ai.set_fog_profile("NONE")
+    await visibility_ai.update_visibility()
+    await broadcast({
+        "type": "scenario",
+        "data": {
+            "name": "scenario_ai_visibility",
+            "title": "Normal Visibility (AI)",
+            "description": "Visibility AI reports good conditions — normal risk profile",
+            "status": "active",
+        },
+    })
+
+
+async def scenario_ai_fog():
+    """AI Scenario: Dense fog — visibility AI predicts LOW visibility,
+    risk engine becomes more conservative, two vehicles escalate risk."""
+    from ..services import visibility_ai
+    print("[scenario] Running AI Scenario: Dense fog")
+    vehicle_simulator.set_scenario("scenario_ai_fog")
+
+    visibility_ai.set_fog_profile("HIGH")
+    await visibility_ai.update_visibility()
+
+    # Position two vehicles close on a blind corner as in scenario 1
+    vehicle_simulator.reposition_on_segment("VH1027", "SEG_N2_N3", t=0.48)
+    vehicle_simulator.reposition_on_segment("VH1052", "SEG_N2_N3", t=0.58)
+    vehicle_simulator.reposition_on_segment("VH1031", "SEG_N9_N10", t=0.5)
+    vehicle_simulator.reposition_on_segment("VH1045", "SEG_N7_N12", t=0.5)
+
+    for vid in VEHICLE_ROUTES:
+        vehicle_simulator.resume_vehicle(vid)
+
+    await broadcast({
+        "type": "scenario",
+        "data": {
+            "name": "scenario_ai_fog",
+            "title": "Dense Fog (AI)",
+            "description": "Visibility AI: ~80m HIGH fog — risk engine more conservative, vehicles approaching blind corner",
+            "status": "active",
+        },
+    })
+
+
+async def scenario_ai_radar_false_positive():
+    """AI Scenario: Radar false positive — AI classifies object as ROCK,
+    no vehicle collision alert is generated."""
+    from ..services import radar_ai
+    print("[scenario] Running AI Scenario: Radar false positive")
+    vehicle_simulator.set_scenario("scenario_ai_radar_false_positive")
+
+    # A stationary rock-like object with high reflectivity and no movement
+    features = {
+        "range_m": 35.0,
+        "relative_speed_mps": 0.05,
+        "reflectivity": 0.78,
+        "size": 1.8,
+        "persistence": 1.0,
+    }
+    result = await radar_ai.record_classification(features, ground_truth="ROCK")
+    radar_simulator.force_classification("ROCK")
+
+    await broadcast({
+        "type": "scenario",
+        "data": {
+            "name": "scenario_ai_radar_false_positive",
+            "title": "Radar False Positive (AI)",
+            "description": "AI classifier: ROCK (91% confidence) — no collision alert produced",
+            "status": "active",
+            "detection": result,
+        },
+    })
+    await broadcast({
+        "type": "radar_ai",
+        "data": result,
+    })
+    await broadcast({
+        "type": "radar_warning",
+        "data": {
+            "beacon_id": "RADAR_ALPHA",
+            "message": f"Object classified as {result['object_class']} ({result['confidence']}%) — not a vehicle, no alert",
+            "range": features["range_m"],
+        },
+    })
+
+
+async def scenario_ai_radar_vehicle():
+    """AI Scenario: Radar vehicle detection — AI classifies object as VEHICLE,
+    a local safety warning is generated."""
+    from ..services import radar_ai
+    print("[scenario] Running AI Scenario: Radar vehicle detection")
+    vehicle_simulator.set_scenario("scenario_ai_radar_vehicle")
+
+    features = {
+        "range_m": 40.0,
+        "relative_speed_mps": 7.0,
+        "reflectivity": 0.92,
+        "size": 5.5,
+        "persistence": 0.98,
+    }
+    result = await radar_ai.record_classification(features, ground_truth="VEHICLE")
+    radar_simulator.force_classification("VEHICLE")
+
+    await broadcast({
+        "type": "scenario",
+        "data": {
+            "name": "scenario_ai_radar_vehicle",
+            "title": "Radar Vehicle Detection (AI)",
+            "description": "AI classifier: VEHICLE (94% confidence) — local safety warning generated",
+            "status": "active",
+            "detection": result,
+        },
+    })
+    await broadcast({
+        "type": "radar_ai",
+        "data": result,
+    })
+    await broadcast({
+        "type": "radar_warning",
+        "data": {
+            "beacon_id": "RADAR_ALPHA",
+            "message": f"⚠ LOCAL WARNING: Vehicle detected {features['range_m']:.0f}m from Blind Corner Alpha (AI {result['confidence']}%)",
+            "range": features["range_m"],
+        },
+    })
+
+
+async def scenario_ai_hotspot():
+    """AI Scenario: Historical hotspot — map shows high-risk zone."""
+    from ..services import hotspot_analysis
+    print("[scenario] Running AI Scenario: Historical hotspot")
+    vehicle_simulator.set_scenario("scenario_ai_hotspot")
+    await hotspot_analysis.analyze()
+    from ..services import ai_state
+    hotspots = await ai_state.get_hotspots()
+    await broadcast({
+        "type": "hotspots",
+        "data": hotspots,
+    })
+    await broadcast({
+        "type": "scenario",
+        "data": {
+            "name": "scenario_ai_hotspot",
+            "title": "Historical Hotspot (AI)",
+            "description": f"{hotspots['zones'][0]['segment_id'] if hotspots['zones'] else 'N/A'} — {hotspots['zones'][0]['alerts'] if hotspots['zones'] else 0} alerts, {hotspots['zones'][0]['critical'] if hotspots['zones'] else 0} critical",
+            "status": "active",
+        },
+    })
+
+
+async def scenario_ai_production():
+    """AI Scenario: Production forecast — visibility decreases, predicts impact."""
+    from ..services import visibility_ai, production_forecast
+    print("[scenario] Running AI Scenario: Production forecast")
+    vehicle_simulator.set_scenario("scenario_ai_production")
+
+    visibility_ai.set_fog_profile("MODERATE")
+    await visibility_ai.update_visibility()
+    forecast = await production_forecast.update_forecast()
+
+    await broadcast({
+        "type": "scenario",
+        "data": {
+            "name": "scenario_ai_production",
+            "title": "Production Forecast (AI)",
+            "description": f"{forecast['normal_cycle_min']}→{forecast['predicted_cycle_min']} min cycle, {forecast['production_impact_pct']}% impact (estimate)",
+            "status": "active",
+        },
+    })
+    await broadcast({
+        "type": "production_forecast",
+        "data": forecast,
+    })
+
+
 async def reset_all():
     """Reset all scenarios — resume normal operation."""
     print("[scenario] Resetting all scenarios")
 
     vehicle_simulator.set_scenario(None)
+
+    from ..services import visibility_ai
+    visibility_ai.set_fog_profile(None)
+    try:
+        radar_simulator.force_classification(None)
+    except Exception:
+        pass
 
     for vid in VEHICLE_ROUTES:
         vehicle_simulator.resume_vehicle(vid)
@@ -147,6 +333,8 @@ async def reset_all():
     for v in all_vehicles:
         if v.vehicle_id.startswith("RADAR-"):
             await vehicle_store.remove(v.vehicle_id)
+
+    await visibility_ai.update_visibility()
 
     await broadcast({
         "type": "gateway_status",

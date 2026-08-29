@@ -2,6 +2,7 @@ import MineMap from '../map/MineMap';
 import VehicleList from '../panels/VehicleList';
 import AlertPanel from '../panels/AlertPanel';
 import SystemHealth from '../panels/SystemHealth';
+import { RadarAIPanel, ProductionPanel } from '../ai/AIPanels';
 
 export default function MainLayout() {
   return (
@@ -18,6 +19,8 @@ export default function MainLayout() {
       <div className="w-[40%] p-3 pl-0 flex flex-col gap-3 min-w-0 overflow-y-auto">
         <VehicleList />
         <AlertPanel />
+        <RadarAIPanel />
+        <ProductionPanel />
       </div>
     </div>
   );

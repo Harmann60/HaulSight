@@ -5,6 +5,7 @@ import { useVehicleStore } from '../../stores/vehicleStore';
 import { useSystemStore } from '../../stores/systemStore';
 import VehicleMarker from './VehicleMarker';
 import RadarBeaconMarker from './RadarBeaconMarker';
+import HotspotLayer from './HotspotLayer';
 
 const MINE_CENTER = [22.2540, 85.8360];
 const DEFAULT_ZOOM = 15;
@@ -122,6 +123,9 @@ export default function MineMap() {
         .map((vehicle) => (
           <VehicleMarker key={vehicle.vehicle_id} vehicle={vehicle} />
         ))}
+
+      {/* AI risk-hotspot layer */}
+      <HotspotLayer segments={roadGraph.segments} />
 
       <MapUpdater vehicles={vehicles} />
     </MapContainer>

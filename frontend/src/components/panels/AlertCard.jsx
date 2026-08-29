@@ -1,5 +1,6 @@
 import { acknowledgeAlert } from '../../api/client';
 import RiskBadge from '../ui/RiskBadge';
+import { useAIStore } from '../../stores/aiStore';
 
 const SEVERITY_BORDER = {
   CRITICAL: 'border-l-red-500 bg-red-50/30',
@@ -9,6 +10,8 @@ const SEVERITY_BORDER = {
 
 export default function AlertCard({ alert }) {
   const borderClass = SEVERITY_BORDER[alert.severity] || 'border-l-gray-300';
+  const visibility = useAIStore((s) => s.visibility);
+  const hasLowVis = /low visibility/i.test(alert.reason);
 
   const handleAcknowledge = async () => {
     await acknowledgeAlert(alert.alert_id);
@@ -42,6 +45,11 @@ export default function AlertCard({ alert }) {
       <div className="mt-2 text-xs text-brown/70">
         {alert.reason}
       </div>
+      {hasLowVis && visibility.estimated_visibility_m != null && (
+        <div className="mt-1.5 text-[10px] text-warning font-semibold inline-flex items-center gap-1">
+          <span>AI visibility: {Math.round(visibility.estimated_visibility_m)}m · {visibility.fog_severity} fog · {visibility.confidence}% conf</span>
+        </div>
+      )}
     </div>
   );
 }

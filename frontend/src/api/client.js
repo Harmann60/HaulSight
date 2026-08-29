@@ -43,3 +43,23 @@ export async function runScenario(name) {
   });
   return res.json();
 }
+
+export async function fetchVisibility() {
+  const res = await fetch(`${API_BASE}/api/v1/ai/visibility`);
+  return res.json();
+}
+
+export async function fetchAIHotspots() {
+  const res = await fetch(`${API_BASE}/api/v1/ai/hotspots`);
+  return res.json();
+}
+
+export async function fetchProduction() {
+  const res = await fetch(`${API_BASE}/api/v1/ai/production`);
+  return res.json();
+}
+
+export async function fetchRadarAI() {
+  const res = await fetch(`${API_BASE}/api/v1/ai/radar`);
+  return res.json();
+}

@@ -7,7 +7,7 @@ import math
 from datetime import datetime
 
 from ..models import RadarDetection
-from ..services import radar_service
+from ..services import radar_service, radar_ai
 from ..services.road_graph import road_graph
 from ..api.websocket import broadcast
 
@@ -18,6 +18,11 @@ class RadarSimulator:
     def __init__(self) -> None:
         self._running = False
         self._detection_interval = 3.0  # seconds between checks
+        self._forced_classification: str | None = None
+
+    def force_classification(self, cls: str | None) -> None:
+        self._forced_classification = cls
+        self._forced_count = 0
 
     async def start(self) -> None:
         self._running = True
@@ -25,6 +30,7 @@ class RadarSimulator:
 
         # Import here to avoid circular import
         from .vehicle_sim import vehicle_simulator
+        from ..state import vehicle_store
 
         while self._running:
             # Skip random detections during active scenarios
@@ -46,6 +52,7 @@ class RadarSimulator:
                     confidence = random.uniform(0.6, 0.95)
 
                     # Always detect known vehicles during normal operation
+                    import json
                     known_vehicles = ["VH1027", "VH1031", "VH1045", "VH1052"]
                     detected_vehicle = random.choice(known_vehicles)
 
@@ -60,6 +67,21 @@ class RadarSimulator:
                     )
 
                     result = await radar_service.record_detection(detection)
+
+                    # Extend detection with AI classification
+                    # Known vehicles -> clearly vehicle-like radar features
+                    features = {
+                        "range_m": detection_range,
+                        "relative_speed_mps": random.uniform(2, 8),
+                        "reflectivity": random.uniform(0.7, 0.98),
+                        "size": random.uniform(4, 6.5),
+                        "persistence": random.uniform(0.8, 1.0),
+                    }
+                    ground_truth = "VEHICLE"
+                    try:
+                        await radar_ai.record_classification(features, ground_truth)
+                    except Exception as e:
+                        print(f"[radar_sim] radar_ai error: {e}")
 
                     if result.get("local_warning"):
                         await broadcast({

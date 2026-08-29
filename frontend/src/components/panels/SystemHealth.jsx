@@ -1,4 +1,5 @@
 import { useSystemStore } from '../../stores/systemStore';
+import { VisibilityChip } from '../ai/VisibilityChip';
 
 export default function SystemHealth() {
   const health = useSystemStore((s) => s.health);
@@ -42,8 +43,11 @@ export default function SystemHealth() {
           <span className="font-semibold text-brown">{item.value}</span>
         </div>
       ))}
-      <div className="ml-auto text-xs text-brown/40">
-        Vehicles: {health.vehicles_tracked || 0} • Alerts: {health.active_alerts || 0}
+      <div className="ml-auto flex items-center gap-3">
+        <VisibilityChip />
+        <div className="text-xs text-brown/40">
+          Vehicles: {health.vehicles_tracked || 0} • Alerts: {health.active_alerts || 0}
+        </div>
       </div>
     </div>
   );

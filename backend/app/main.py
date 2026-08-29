@@ -18,7 +18,7 @@ from .api.websocket import broadcast
 from .simulator.vehicle_sim import vehicle_simulator
 from .simulator.radar_sim import radar_simulator
 
-from .api import vehicles, roads, alerts, radar, websocket
+from .api import vehicles, roads, alerts, radar, websocket, ai
 
 _START_TIME = time.time()
 
@@ -140,6 +140,12 @@ async def lifespan(app: FastAPI):
     sim_task = asyncio.create_task(vehicle_simulator.start())
     radar_task = asyncio.create_task(radar_simulator.start())
 
+    # AI background loops
+    from .services import visibility_ai, hotspot_analysis, production_forecast
+    vis_task = asyncio.create_task(visibility_ai.run_loop(3.0))
+    hot_task = asyncio.create_task(hotspot_analysis.run_loop(10.0))
+    prod_task = asyncio.create_task(production_forecast.run_loop(5.0))
+
     print("[haulshight] All systems started")
 
     yield
@@ -151,6 +157,9 @@ async def lifespan(app: FastAPI):
     stale_task.cancel()
     sim_task.cancel()
     radar_task.cancel()
+    vis_task.cancel()
+    hot_task.cancel()
+    prod_task.cancel()
     await close_db()
     print("[haulshight] Shutdown complete")
 
@@ -178,6 +187,7 @@ def create_app() -> FastAPI:
     _APP.include_router(roads.router)
     _APP.include_router(alerts.router)
     _APP.include_router(radar.router)
+    _APP.include_router(ai.router)
     _APP.include_router(websocket.router)
 
     @_APP.get("/api/v1/health")
@@ -212,6 +222,12 @@ def create_app() -> FastAPI:
             scenario_1_normal_operation,
             scenario_2_network_failure,
             scenario_3_non_equipped_vehicle,
+            scenario_ai_visibility,
+            scenario_ai_fog,
+            scenario_ai_radar_false_positive,
+            scenario_ai_radar_vehicle,
+            scenario_ai_hotspot,
+            scenario_ai_production,
             reset_all,
         )
         scenarios = {
@@ -222,6 +238,14 @@ def create_app() -> FastAPI:
             "3": scenario_3_non_equipped_vehicle,
             "non_equipped": scenario_3_non_equipped_vehicle,
             "reset": reset_all,
+            # AI scenarios
+            "fog": scenario_ai_fog,
+            "dense_fog": scenario_ai_fog,
+            "normal_visibility": scenario_ai_visibility,
+            "radar_false_positive": scenario_ai_radar_false_positive,
+            "radar_vehicle": scenario_ai_radar_vehicle,
+            "hotspot": scenario_ai_hotspot,
+            "production": scenario_ai_production,
         }
         fn = scenarios.get(scenario_name)
         if not fn:

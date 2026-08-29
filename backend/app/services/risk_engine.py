@@ -99,6 +99,21 @@ def evaluate_pair(a: VehicleStateRecord, b: VehicleStateRecord) -> tuple[RiskLev
             multiplier = config["blind_corner_threshold_multiplier"]
             blind_reason = f" on blind-corner segment {seg.segment_id}"
 
+    # AI visibility safety margin: lower visibility -> more conservative.
+    # Reduces all thresholds, making WARNING/CRITICAL trigger sooner.
+    vis_margin = 1.0
+    vis_note = ""
+    try:
+        from . import ai_state
+        vis = ai_state._visibility
+        vis_m = vis.get("estimated_visibility_m", 1000.0)
+        if vis_m < 500:
+            vis_margin = max(0.45, 0.35 + (vis_m / 500.0) * 0.65)
+            vis_note = f", low visibility {vis_m:.0f}m (AI)"
+    except Exception:
+        pass
+    multiplier = multiplier * vis_margin
+
     risk = RiskLevel.SAFE
     reason = ""
 
@@ -113,19 +128,19 @@ def evaluate_pair(a: VehicleStateRecord, b: VehicleStateRecord) -> tuple[RiskLev
         risk = RiskLevel.CRITICAL
         reason = (
             f"Vehicles {a.vehicle_id} and {b.vehicle_id} approaching conflict zone. "
-            f"TTC: {ttc:.1f}s, distance: {distance:.0f}m, closing speed: {cs * 3.6:.0f} km/h{blind_reason}."
+            f"TTC: {ttc:.1f}s, distance: {distance:.0f}m, closing speed: {cs * 3.6:.0f} km/h{blind_reason}{vis_note}."
         )
     elif (ttc < warning_ttc or distance < warning_dist) and cs > 0:
         risk = RiskLevel.WARNING
         reason = (
             f"Vehicles {a.vehicle_id} and {b.vehicle_id} converging. "
-            f"TTC: {ttc:.1f}s, distance: {distance:.0f}m{blind_reason}."
+            f"TTC: {ttc:.1f}s, distance: {distance:.0f}m{blind_reason}{vis_note}."
         )
     elif (ttc < caution_ttc or distance < caution_dist) and cs > 0:
         risk = RiskLevel.CAUTION
         reason = (
             f"Vehicles {a.vehicle_id} and {b.vehicle_id} in proximity. "
-            f"TTC: {ttc:.1f}s, distance: {distance:.0f}m{blind_reason}."
+            f"TTC: {ttc:.1f}s, distance: {distance:.0f}m{blind_reason}{vis_note}."
         )
 
     return risk, reason
