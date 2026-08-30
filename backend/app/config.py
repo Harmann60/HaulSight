@@ -60,4 +60,7 @@ def update_config(updates: dict[str, Any]) -> dict[str, Any]:
 
 
 def db_path() -> str:
+    if os.environ.get("VERCEL"):
+        return "/tmp/haulsight.db"
+
     return str(Path(__file__).resolve().parent.parent / "data" / "haulsight.db")
