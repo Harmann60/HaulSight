@@ -59,7 +59,7 @@ def update_config(updates: dict[str, Any]) -> dict[str, Any]:
     return _config
 
 
-def db_path() -> str:
+    def db_path() -> str:
     if os.environ.get("VERCEL"):
         return "/tmp/haulsight.db"
 
